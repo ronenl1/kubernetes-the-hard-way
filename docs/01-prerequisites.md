@@ -21,19 +21,20 @@ If you are using the `aws` command-line tool for the first time `configure` is t
 aws configure
 ```
 
-Otherwise set a default compute region:
+Then fill the Access Key ID and Secret Access Key of your account:
 
 ```
-gcloud config set compute/region us-west1
+AWS Access Key ID [None]: 
+AWS Secret Access Key [None]:
 ```
 
-Set a default compute zone:
+Set the default compute zone and default output format:
 
 ```
-gcloud config set compute/zone us-west1-c
-```
+Default region name [None]: eu-west-1
+Default output format [None]: json
 
-> Use the `gcloud compute zones list` command to view additional regions and zones.
+```
 
 ## Running Commands in Parallel with tmux
 
