@@ -52,7 +52,20 @@ aws ec2 create-tags \
 
 > The `10.240.0.0/24` IP address range can host up to 254 compute instances.
 
-to expose our VPC to the internet we will use an [internet gateway](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html) 
+for exposing the instances in our VPC to the internet we will use an [internet gateway](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html):
+
+```
+INTERNET_GATEWAY_ID=$(aws ec2 create-internet-gateway \
+  --output text --query 'InternetGateway.InternetGatewayId')
+
+aws ec2 create-tags \
+  --resources ${INTERNET_GATEWAY_ID} \
+  --tags Key=Name,Value=kubernetes
+
+aws ec2 attach-internet-gateway \
+  --internet-gateway-id ${INTERNET_GATEWAY_ID} \
+  --vpc-id ${VPC_ID}
+```
 
 ### Firewall Rules
 
