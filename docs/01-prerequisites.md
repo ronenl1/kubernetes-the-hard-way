@@ -8,22 +8,17 @@
 
 ### Install the Amazon Web Services CLI
 
-Follow the Amazon Web Services CLI [documentation](https://cloud.google.com/sdk/) to install and configure the `gcloud` command line utility.
+Follow the Amazon Web Services CLI [documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) to install and configure the `aws` command line utility.
 
-Verify the Google Cloud SDK version is 218.0.0 or higher:
-
-```
-gcloud version
-```
 
 ### Set a Default Compute Region and Zone
 
 This tutorial assumes a default compute region and zone have been configured.
 
-If you are using the `gcloud` command-line tool for the first time `init` is the easiest way to do this:
+If you are using the `aws` command-line tool for the first time `configure` is the easiest way to do this:
 
 ```
-gcloud init
+aws configure
 ```
 
 Otherwise set a default compute region:
