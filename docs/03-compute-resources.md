@@ -17,8 +17,23 @@ In this section a dedicated [Virtual Private Cloud](https://docs.amazonaws.cn/en
 Create the `kubernetes-the-hard-way` custom VPC network:
 
 ```
-gcloud compute networks create kubernetes-the-hard-way --subnet-mode custom
+VPC_ID=$(aws ec2 create-vpc \
+  --cidr-block 10.240.0.0/24 \
+  --output text --query 'Vpc.VpcId')
+
+aws ec2 create-tags \
+  --resources ${VPC_ID} \
+  --tags Key=Name,Value=kubernetes-the-hard-way
+ 
+aws ec2 modify-vpc-attribute \
+  --vpc-id ${VPC_ID} \
+  --enable-dns-support '{"Value": true}'
+  
+aws ec2 modify-vpc-attribute \
+  --vpc-id ${VPC_ID} \
+  --enable-dns-hostnames '{"Value": true}'
 ```
+
 
 A [subnet](https://cloud.google.com/compute/docs/vpc/#vpc_networks_and_subnets) must be provisioned with an IP address range large enough to assign a private IP address to each node in the Kubernetes cluster.
 
