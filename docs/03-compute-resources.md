@@ -35,17 +35,24 @@ aws ec2 modify-vpc-attribute \
 ```
 
 
-A [subnet](https://cloud.google.com/compute/docs/vpc/#vpc_networks_and_subnets) must be provisioned with an IP address range large enough to assign a private IP address to each node in the Kubernetes cluster.
+A [subnet](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html) must be provisioned with an IP address range large enough to assign a private IP address to each node in the Kubernetes cluster.
 
 Create the `kubernetes` subnet in the `kubernetes-the-hard-way` VPC network:
 
 ```
-gcloud compute networks subnets create kubernetes \
-  --network kubernetes-the-hard-way \
-  --range 10.240.0.0/24
+SUBNET_ID=$(aws ec2 create-subnet \
+  --vpc-id ${VPC_ID} \
+  --cidr-block 10.240.0.0/24 \
+  --output text --query 'Subnet.SubnetId')
+
+aws ec2 create-tags \
+  --resources ${SUBNET_ID} \
+  --tags Key=Name,Value=kubernetes
 ```
 
 > The `10.240.0.0/24` IP address range can host up to 254 compute instances.
+
+to expose our VPC to the internet we will use an [internet gateway](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html) 
 
 ### Firewall Rules
 
