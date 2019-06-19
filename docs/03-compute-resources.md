@@ -52,7 +52,7 @@ aws ec2 create-tags \
 
 > The `10.240.0.0/24` IP address range can host up to 254 compute instances.
 
-for exposing the instances in our VPC to the internet we will use an [internet gateway](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html):
+for exposing the instances in your VPC to the internet you will use an [internet gateway](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html):
 
 ```
 INTERNET_GATEWAY_ID=$(aws ec2 create-internet-gateway \
@@ -67,6 +67,26 @@ aws ec2 attach-internet-gateway \
   --vpc-id ${VPC_ID}
 ```
 
+a [route table](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html) will be provisioned to route outgoing traffic through the internet gateway:
+
+```
+ROUTE_TABLE_ID=$(aws ec2 create-route-table \
+  --vpc-id ${VPC_ID} \
+  --output text --query 'RouteTable.RouteTableId')
+
+aws ec2 create-tags \
+  --resources ${ROUTE_TABLE_ID} \
+  --tags Key=Name,Value=kubernetes
+
+aws ec2 associate-route-table \
+  --route-table-id ${ROUTE_TABLE_ID} \
+  --subnet-id ${SUBNET_ID}
+
+aws ec2 create-route \
+  --route-table-id ${ROUTE_TABLE_ID} \
+  --destination-cidr-block 0.0.0.0/0 \
+  --gateway-id ${INTERNET_GATEWAY_ID}
+```
 ### Firewall Rules
 
 Create a firewall rule that allows internal communication across all protocols:
