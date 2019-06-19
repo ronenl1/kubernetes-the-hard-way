@@ -178,7 +178,7 @@ aws elbv2 register-targets \
   --targets Id=10.240.0.1{0,1,2}
 ```
 
-After registering the target group to the load balancer, it required to add a [listener](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html), who checks for connection requests and tells the load balancer how to route them into the targets:
+After registering the target group to the load balancer, it required to add a [listener](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html), who checks for connection requests and tells the load balancer how to route them into the target group:
 
 ```
 aws elbv2 create-listener \
@@ -193,6 +193,15 @@ aws elbv2 create-listener \
 ## Compute Instances
 
 The compute instances in this lab will be provisioned using [Ubuntu Server](https://www.ubuntu.com/server) 18.04, which has good support for the [containerd container runtime](https://github.com/containerd/containerd). Each compute instance will be provisioned with a fixed private IP address to simplify the Kubernetes bootstrapping process.
+
+```
+IMAGE_ID=$(aws ec2 describe-images --owners 099720109477 \
+  --filters \
+  'Name=root-device-type,Values=ebs' \
+  'Name=architecture,Values=x86_64' \
+  'Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*' \
+  | jq -r '.Images|sort_by(.Name)[-1]|.ImageId')
+```
 
 ### Kubernetes Controllers
 
