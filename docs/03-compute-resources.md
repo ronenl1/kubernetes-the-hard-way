@@ -93,19 +93,43 @@ aws ec2 create-route \
 Create a security group that allows internal communication across all protocols:
 
 ```
-gcloud compute firewall-rules create kubernetes-the-hard-way-allow-internal \
-  --allow tcp,udp,icmp \
-  --network kubernetes-the-hard-way \
-  --source-ranges 10.240.0.0/24,10.200.0.0/16
-```
+SECURITY_GROUP_ID=$(aws ec2 create-security-group \
+  --group-name kubernetes \
+  --description "Kubernetes security group" \
+  --vpc-id ${VPC_ID} \
+  --output text --query 'GroupId')
 
-Create a firewall rule that allows external SSH, ICMP, and HTTPS:
+aws ec2 create-tags \
+  --resources ${SECURITY_GROUP_ID} \
+  --tags Key=Name,Value=kubernetes
 
-```
-gcloud compute firewall-rules create kubernetes-the-hard-way-allow-external \
-  --allow tcp:22,tcp:6443,icmp \
-  --network kubernetes-the-hard-way \
-  --source-ranges 0.0.0.0/0
+aws ec2 authorize-security-group-ingress \
+  --group-id ${SECURITY_GROUP_ID} \
+  --protocol all \
+  --cidr 10.240.0.0/24
+
+aws ec2 authorize-security-group-ingress \
+  --group-id ${SECURITY_GROUP_ID} \
+  --protocol all \
+  --cidr 10.200.0.0/16
+
+aws ec2 authorize-security-group-ingress \
+  --group-id ${SECURITY_GROUP_ID} \
+  --protocol tcp \
+  --port 22 \
+  --cidr 0.0.0.0/0
+
+aws ec2 authorize-security-group-ingress \
+  --group-id ${SECURITY_GROUP_ID} \
+  --protocol tcp \
+  --port 6443 \
+  --cidr 0.0.0.0/0
+
+aws ec2 authorize-security-group-ingress \
+  --group-id ${SECURITY_GROUP_ID} \
+  --protocol icmp \
+  --port all \
+  --cidr 0.0.0.0/0
 ```
 
 > An [external load balancer](https://cloud.google.com/compute/docs/load-balancing/network/) will be used to expose the Kubernetes API Servers to remote clients.
