@@ -132,43 +132,32 @@ aws ec2 authorize-security-group-ingress \
   --cidr 0.0.0.0/0
 ```
 
-> An [external load balancer](https://cloud.google.com/compute/docs/load-balancing/network/) will be used to expose the Kubernetes API Servers to remote clients.
-
-List the firewall rules in the `kubernetes-the-hard-way` VPC network:
-
-```
-gcloud compute firewall-rules list --filter="network:kubernetes-the-hard-way"
-```
-
-> output
-
-```
-NAME                                    NETWORK                  DIRECTION  PRIORITY  ALLOW                 DENY
-kubernetes-the-hard-way-allow-external  kubernetes-the-hard-way  INGRESS    1000      tcp:22,tcp:6443,icmp
-kubernetes-the-hard-way-allow-internal  kubernetes-the-hard-way  INGRESS    1000      tcp,udp,icmp
-```
-
 ### Kubernetes Public IP Address
 
 Allocate a static IP address that will be attached to the external load balancer fronting the Kubernetes API Servers:
 
 ```
-gcloud compute addresses create kubernetes-the-hard-way \
-  --region $(gcloud config get-value compute/region)
+KUBERNETES_PUBLIC_IP=$(aws ec2 allocate-address \
+  --domain vpc \
+  --output text --query 'AllocationId')
 ```
 
-Verify the `kubernetes-the-hard-way` static IP address was created in your default compute region:
+### Elastic Load Balancer
+
+An [elastic load balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html) will be used to expose the Kubernetes API Servers to remote clients:
 
 ```
-gcloud compute addresses list --filter="name=('kubernetes-the-hard-way')"
+LOAD_BALANCER_ARN=$(aws elbv2 create-load-balancer \
+  --name kubernetes \
+  --subnets ${SUBNET_ID} \
+  --scheme internet-facing \
+  --type network \
+  --output text --query 'LoadBalancers[].LoadBalancerArn')
 ```
 
-> output
+For the load balancer that will be created we need to specify a [target group](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html) which point to the ec2 instances by their IP. 
 
-```
-NAME                     REGION    ADDRESS        STATUS
-kubernetes-the-hard-way  us-west1  XX.XXX.XXX.XX  RESERVED
-```
+
 
 ## Compute Instances
 
