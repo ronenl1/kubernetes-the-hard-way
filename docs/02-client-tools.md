@@ -114,4 +114,19 @@ kubectl version --client
 Client Version: version.Info{Major:"1", Minor:"12", GitVersion:"v1.12.0", GitCommit:"0ed33881dc4355495f623c6f22e7dd0b7632b7c0", GitTreeState:"clean", BuildDate:"2018-09-27T17:05:32Z", GoVersion:"go1.10.4", Compiler:"gc", Platform:"linux/amd64"}
 ```
 
+## Install jq
+
+`jq` is a command line JSON processor, you can use it to slice, filter, map and transform structured data.
+this tool will be used for pulling the latest Ubuntu 18.04 image from AWS.
+
+Follow the `jq` [documentation](https://stedolan.github.io/jq/download/) to install the JSON processor.
+
+### Verification
+
+Verify `jq` version 1.6 or higher is installed:
+
+```
+jq --version
+```
+
 Next: [Provisioning Compute Resources](03-compute-resources.md)
