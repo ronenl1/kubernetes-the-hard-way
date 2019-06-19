@@ -194,6 +194,8 @@ aws elbv2 create-listener \
 
 The compute instances in this lab will be provisioned using [Ubuntu Server](https://www.ubuntu.com/server) 18.04, which has good support for the [containerd container runtime](https://github.com/containerd/containerd). Each compute instance will be provisioned with a fixed private IP address to simplify the Kubernetes bootstrapping process.
 
+getting the newest Ubuntu 18.04 image ID:
+
 ```
 IMAGE_ID=$(aws ec2 describe-images --owners 099720109477 \
   --filters \
