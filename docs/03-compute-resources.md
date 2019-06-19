@@ -52,7 +52,7 @@ aws ec2 create-tags \
 
 > The `10.240.0.0/24` IP address range can host up to 254 compute instances.
 
-For exposing the instances in your VPC to the internet you will use an [internet gateway](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html):
+For exposing the instances in your VPC to the internet you will create an [internet gateway](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html):
 
 ```
 INTERNET_GATEWAY_ID=$(aws ec2 create-internet-gateway \
@@ -87,9 +87,10 @@ aws ec2 create-route \
   --destination-cidr-block 0.0.0.0/0 \
   --gateway-id ${INTERNET_GATEWAY_ID}
 ```
-### Firewall Rules
 
-Create a firewall rule that allows internal communication across all protocols:
+### Security Groups
+
+Create a security group that allows internal communication across all protocols:
 
 ```
 gcloud compute firewall-rules create kubernetes-the-hard-way-allow-internal \
