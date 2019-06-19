@@ -117,7 +117,7 @@ Client Version: version.Info{Major:"1", Minor:"12", GitVersion:"v1.12.0", GitCom
 ## Install jq
 
 `jq` is a command line JSON processor, you can use it to slice, filter, map and transform structured data.
-this tool will be used for pulling the latest Ubuntu 18.04 image from AWS.
+this tool will be used for pulling the latest Ubuntu 18.04 image from Amazon Web Services.
 
 Follow the `jq` [documentation](https://stedolan.github.io/jq/download/) to install the JSON processor.
 
