@@ -67,7 +67,7 @@ aws ec2 attach-internet-gateway \
   --vpc-id ${VPC_ID}
 ```
 
-A [route table](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html) will be provisioned to route outgoing traffic through the internet gateway:
+Create a [route table](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html) to route outgoing traffic through the internet gateway:
 
 ```
 ROUTE_TABLE_ID=$(aws ec2 create-route-table \
