@@ -194,7 +194,7 @@ aws elbv2 create-listener \
 
 The compute instances in this lab will be provisioned using [Ubuntu Server](https://www.ubuntu.com/server) 18.04, which has good support for the [containerd container runtime](https://github.com/containerd/containerd). Each compute instance will be provisioned with a fixed private IP address to simplify the Kubernetes bootstrapping process.
 
-getting the newest Ubuntu 18.04 image ID:
+Getting the newest Ubuntu 18.04 image ID:
 
 ```
 IMAGE_ID=$(aws ec2 describe-images --owners 099720109477 \
@@ -205,23 +205,45 @@ IMAGE_ID=$(aws ec2 describe-images --owners 099720109477 \
   | jq -r '.Images|sort_by(.Name)[-1]|.ImageId')
 ```
 
+Creating SSH key pair to authorize with for gaining access to the instances:
+
+```
+mkdir -p KubernetesPractice
+
+cd KubernetesPractice
+
+mkdir -p ssh
+
+aws ec2 create-key-pair \
+  --key-name kubernetes \
+  --output text --query 'KeyMaterial' \
+  > ssh/kubernetes.id_rsa
+chmod 600 ssh/kubernetes.id_rsa
+```
+
 ### Kubernetes Controllers
 
 Create three compute instances which will host the Kubernetes control plane:
 
 ```
 for i in 0 1 2; do
-  gcloud compute instances create controller-${i} \
-    --async \
-    --boot-disk-size 200GB \
-    --can-ip-forward \
-    --image-family ubuntu-1804-lts \
-    --image-project ubuntu-os-cloud \
-    --machine-type n1-standard-1 \
-    --private-network-ip 10.240.0.1${i} \
-    --scopes compute-rw,storage-ro,service-management,service-control,logging-write,monitoring \
-    --subnet kubernetes \
-    --tags kubernetes-the-hard-way,controller
+  instance_id=$(aws ec2 run-instances \
+    --associate-public-ip-address \
+    --image-id ${IMAGE_ID} \
+    --count 1 \
+    --key-name kubernetes \
+    --security-group-ids ${SECURITY_GROUP_ID} \
+    --instance-type t2.micro \
+    --private-ip-address 10.240.0.1${i} \
+    --user-data "name=controller-${i}" \
+    --subnet-id ${SUBNET_ID} \
+    --output text --query 'Instances[].InstanceId')
+  aws ec2 modify-instance-attribute \
+    --instance-id ${instance_id} \
+    --no-source-dest-check
+  aws ec2 create-tags \
+    --resources ${instance_id} \
+    --tags "Key=Name,Value=controller-${i}"
 done
 ```
 
@@ -235,18 +257,23 @@ Create three compute instances which will host the Kubernetes worker nodes:
 
 ```
 for i in 0 1 2; do
-  gcloud compute instances create worker-${i} \
-    --async \
-    --boot-disk-size 200GB \
-    --can-ip-forward \
-    --image-family ubuntu-1804-lts \
-    --image-project ubuntu-os-cloud \
-    --machine-type n1-standard-1 \
-    --metadata pod-cidr=10.200.${i}.0/24 \
-    --private-network-ip 10.240.0.2${i} \
-    --scopes compute-rw,storage-ro,service-management,service-control,logging-write,monitoring \
-    --subnet kubernetes \
-    --tags kubernetes-the-hard-way,worker
+  instance_id=$(aws ec2 run-instances \
+    --associate-public-ip-address \
+    --image-id ${IMAGE_ID} \
+    --count 1 \
+    --key-name kubernetes \
+    --security-group-ids ${SECURITY_GROUP_ID} \
+    --instance-type t2.micro \
+    --private-ip-address 10.240.0.2${i} \
+    --user-data "name=worker-${i}|pod-cidr=10.200.${i}.0/24" \
+    --subnet-id ${SUBNET_ID} \
+    --output text --query 'Instances[].InstanceId')
+  aws ec2 modify-instance-attribute \
+    --instance-id ${instance_id} \
+    --no-source-dest-check
+  aws ec2 create-tags \
+    --resources ${instance_id} \
+    --tags "Key=Name,Value=worker-${i}"
 done
 ```
 
