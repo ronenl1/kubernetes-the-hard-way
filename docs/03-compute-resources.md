@@ -137,9 +137,13 @@ aws ec2 authorize-security-group-ingress \
 Allocate a static IP address that will be attached to the external load balancer fronting the Kubernetes API Servers:
 
 ```
-KUBERNETES_PUBLIC_IP=$(aws ec2 allocate-address \
+ELASTIC_IP_ARN=$(aws ec2 allocate-address \
   --domain vpc \
   --output text --query 'AllocationId')
+
+KUBERNETES_PUBLIC_IP=$(aws ec2 describe-addresses \
+  --allocation-ids $ELASTIC_IP_ARN \
+  --output text | awk '{print $4}')
 ```
 
 ### Elastic Load Balancer
@@ -149,14 +153,41 @@ An [elastic load balancer](https://docs.aws.amazon.com/elasticloadbalancing/late
 ```
 LOAD_BALANCER_ARN=$(aws elbv2 create-load-balancer \
   --name kubernetes \
-  --subnets ${SUBNET_ID} \
   --scheme internet-facing \
   --type network \
+  --subnet-mappings SubnetId=${SUBNET_ID},AllocationId=$ELASTIC_IP_ARN \
   --output text --query 'LoadBalancers[].LoadBalancerArn')
 ```
 
-For the load balancer that will be created we need to specify a [target group](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html) which point to the ec2 instances by their IP. 
+We need to specify a [target group](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html) For the load balancer which point to the EC2 instances by their IP:
 
+```
+TARGET_GROUP_ARN=$(aws elbv2 create-target-group \
+  --name kubernetes \
+  --protocol TCP \
+  --port 6443 \
+  --vpc-id ${VPC_ID} \
+  --target-type ip \
+  --output text --query 'TargetGroups[].TargetGroupArn')
+```
+Register the targets to the load balancer:
+
+```
+aws elbv2 register-targets \
+  --target-group-arn ${TARGET_GROUP_ARN} \
+  --targets Id=10.240.0.1{0,1,2}
+```
+
+After registering the target group to the load balancer, it required to add a [listener](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html), who checks for connection requests and tells the load balancer how to route them into the targets:
+
+```
+aws elbv2 create-listener \
+  --load-balancer-arn ${LOAD_BALANCER_ARN} \
+  --protocol TCP \
+  --port 6443 \
+  --default-actions Type=forward,TargetGroupArn=${TARGET_GROUP_ARN} \
+  --output text --query 'Listeners[].ListenerArn'
+```
 
 
 ## Compute Instances
