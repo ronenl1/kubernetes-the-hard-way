@@ -279,12 +279,12 @@ done
 
 ### Verification
 
-List the compute instances in your default compute zone:
+List the running compute instances in your default compute zone:
 
 ```
 aws ec2 describe-instances \
 --query 'Reservations[*].Instances[*].[Tags]' \
---filters Name=instance-state-name,Values=running \
+--filters Name=instance-state-name,Values=running Name=subnet-id,Values=$SUBNET_ID \
 --output text
 ```
 
