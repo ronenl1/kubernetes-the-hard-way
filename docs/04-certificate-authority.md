@@ -9,6 +9,11 @@ In this section you will provision a Certificate Authority that can be used to g
 Generate the CA configuration file, certificate, and private key:
 
 ```
+mkdir -p tls
+cd tls
+```
+
+```
 {
 
 cat > ca-config.json <<EOF
