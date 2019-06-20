@@ -61,6 +61,9 @@ Results:
 ```
 ca-key.pem
 ca.pem
+ca.csr
+ca-csr.json
+ca-config.json
 ```
 
 ## Client and Server Certificates
@@ -108,6 +111,8 @@ Results:
 ```
 admin-key.pem
 admin.pem
+admin.csr
+admin-csr.json
 ```
 
 ### The Kubelet Client Certificates
