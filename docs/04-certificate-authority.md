@@ -123,10 +123,12 @@ Kubernetes uses a [special-purpose authorization mode](https://kubernetes.io/doc
 Generate a certificate and private key for each Kubernetes worker node:
 
 ```
-for instance in worker-0 worker-1 worker-2; do
+for i in 0 1 2; do
+instance="worker-${i}"
+instance_hostname="ip-10-240-0-2${i}"
 cat > ${instance}-csr.json <<EOF
 {
-  "CN": "system:node:${instance}",
+  "CN": "system:node:${instance_hostname}",
   "key": {
     "algo": "rsa",
     "size": 2048
@@ -143,17 +145,19 @@ cat > ${instance}-csr.json <<EOF
 }
 EOF
 
-EXTERNAL_IP=$(gcloud compute instances describe ${instance} \
-  --format 'value(networkInterfaces[0].accessConfigs[0].natIP)')
+EXTERNAL_IP=$(aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=${instance}" \
+  --output text --query 'Reservations[].Instances[].PublicIpAddress')
 
-INTERNAL_IP=$(gcloud compute instances describe ${instance} \
-  --format 'value(networkInterfaces[0].networkIP)')
+INTERNAL_IP=$(aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=${instance}" \
+  --output text --query 'Reservations[].Instances[].PrivateIpAddress')
 
 cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
-  -hostname=${instance},${EXTERNAL_IP},${INTERNAL_IP} \
+  -hostname=${instance_hostname},${EXTERNAL_IP},${INTERNAL_IP} \
   -profile=kubernetes \
   ${instance}-csr.json | cfssljson -bare ${instance}
 done
