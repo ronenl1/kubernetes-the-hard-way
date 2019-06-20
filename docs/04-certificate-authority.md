@@ -5,6 +5,7 @@ In this lab you will provision a [PKI Infrastructure](https://en.wikipedia.org/w
 ## Certificate Authority
 
 In this section you will provision a Certificate Authority that can be used to generate additional TLS certificates.
+
 Create a folder for the certificates:
 
 ```
