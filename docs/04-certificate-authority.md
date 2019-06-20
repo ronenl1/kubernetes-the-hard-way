@@ -5,13 +5,13 @@ In this lab you will provision a [PKI Infrastructure](https://en.wikipedia.org/w
 ## Certificate Authority
 
 In this section you will provision a Certificate Authority that can be used to generate additional TLS certificates.
-
-Generate the CA configuration file, certificate, and private key:
+Create a folder for the certificates:
 
 ```
 mkdir -p tls
 cd tls
 ```
+Generate the CA configuration file, certificate, and private key:
 
 ```
 {
