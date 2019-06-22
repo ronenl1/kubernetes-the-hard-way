@@ -140,6 +140,10 @@ Allocate a static IP address that will be attached to the external load balancer
 ELASTIC_IP_ARN=$(aws ec2 allocate-address \
   --domain vpc \
   --output text --query 'AllocationId')
+  
+aws ec2 create-tags \
+  --resources ${ELASTIC_IP_ARN} \
+  --tags Key=Name,Value=kubernetes
 
 KUBERNETES_PUBLIC_IP=$(aws ec2 describe-addresses \
   --allocation-ids $ELASTIC_IP_ARN \
