@@ -221,6 +221,8 @@ Results:
 ```
 kube-controller-manager-key.pem
 kube-controller-manager.pem
+kube-controller-manager-csr.json
+kube-controller-manager.csr
 ```
 
 
