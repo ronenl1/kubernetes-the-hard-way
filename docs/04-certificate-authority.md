@@ -267,6 +267,8 @@ Results:
 ```
 kube-proxy-key.pem
 kube-proxy.pem
+kube-proxy-csr.json
+kube-proxy.csr
 ```
 
 ### The Scheduler Client Certificate
@@ -310,6 +312,8 @@ Results:
 ```
 kube-scheduler-key.pem
 kube-scheduler.pem
+kube-scheduler-csr.json
+kube-scheduler.csr
 ```
 
 
