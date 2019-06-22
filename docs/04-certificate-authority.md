@@ -168,10 +168,16 @@ Results:
 ```
 worker-0-key.pem
 worker-0.pem
+worker-0.csr
+worker-0-csr.json
 worker-1-key.pem
 worker-1.pem
+worker-1.csr
+worker-1-csr.json
 worker-2-key.pem
 worker-2.pem
+worker-2.csr
+worker-2-csr.json
 ```
 
 ### The Controller Manager Client Certificate
