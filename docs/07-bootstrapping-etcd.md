@@ -11,7 +11,7 @@ EXTERNAL_IP=$(aws ec2 describe-instances \
     --filters "Name=tag:Name,Values=controller-0" \
     --output text --query 'Reservations[].Instances[].PublicIpAddress')
 
-ssh -i "../ssh/kubernetes.id_rsa" ubuntu@{EXTERNAL_IP}
+ssh -i "../ssh/kubernetes.id_rsa" ubuntu@$EXTERNAL_IP
 ```
 
 ### Running commands in parallel with tmux
