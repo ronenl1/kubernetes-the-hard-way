@@ -9,7 +9,6 @@ In this section you will provision a Certificate Authority that can be used to g
 Create a folder for the certificates:
 
 ```
-cd ..
 mkdir -p tls
 cd tls
 ```
