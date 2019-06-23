@@ -2,7 +2,7 @@
 
 In this lab you will generate a kubeconfig file for the `kubectl` command line utility based on the `admin` user credentials.
 
-> Run the commands in this lab from the same directory used to generate the admin client certificates.
+> Run the commands in this lab from the same directory used to generate the admin client certificates (local).
 
 ## The Admin Kubernetes Configuration File
 
@@ -12,9 +12,9 @@ Generate a kubeconfig file suitable for authenticating as the `admin` user:
 
 ```
 {
-  KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe kubernetes-the-hard-way \
-    --region $(gcloud config get-value compute/region) \
-    --format 'value(address)')
+  KUBERNETES_PUBLIC_ADDRESS=$(aws ec2 describe-addresses \
+    --filters 'Name=tag:Name,Values=kubernetes' \
+    --output text --query 'Addresses[].PublicIp')
 
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.pem \
@@ -61,10 +61,10 @@ kubectl get nodes
 > output
 
 ```
-NAME       STATUS   ROLES    AGE    VERSION
-worker-0   Ready    <none>   117s   v1.12.0
-worker-1   Ready    <none>   118s   v1.12.0
-worker-2   Ready    <none>   118s   v1.12.0
+NAME             STATUS   ROLES    AGE   VERSION
+ip-10-240-0-20   Ready    <none>   40m   v1.12.0
+ip-10-240-0-21   Ready    <none>   39m   v1.12.0
+ip-10-240-0-22   Ready    <none>   39m   v1.12.0
 ```
 
 Next: [Provisioning Pod Network Routes](11-pod-network-routes.md)
