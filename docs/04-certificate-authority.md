@@ -326,9 +326,9 @@ Generate the Kubernetes API Server certificate and private key:
 ```
 {
 
-KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe kubernetes-the-hard-way \
-  --region $(gcloud config get-value compute/region) \
-  --format 'value(address)')
+KUBERNETES_PUBLIC_ADDRESS=$(aws ec2 describe-addresses \
+  --filters 'Name=tag:Name,Values=kubernetes' \
+  --output text --query 'Addresses[].PublicIp')
 
 cat > kubernetes-csr.json <<EOF
 {
@@ -365,6 +365,8 @@ Results:
 ```
 kubernetes-key.pem
 kubernetes.pem
+kubernetes-csr.json
+kubernetes.csr
 ```
 
 ## The Service Account Key Pair
