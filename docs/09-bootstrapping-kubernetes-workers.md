@@ -201,8 +201,8 @@ clusterDNS:
 podCIDR: "${POD_CIDR}"
 resolvConf: "/run/systemd/resolve/resolv.conf"
 runtimeRequestTimeout: "15m"
-tlsCertFile: "/var/lib/kubelet/${HOSTNAME}.pem"
-tlsPrivateKeyFile: "/var/lib/kubelet/${HOSTNAME}-key.pem"
+tlsCertFile: "/var/lib/kubelet/${WORKER_NAME}.pem"
+tlsPrivateKeyFile: "/var/lib/kubelet/${WORKER_NAME}-key.pem"
 EOF
 ```
 
@@ -293,17 +293,24 @@ EOF
 List the registered Kubernetes nodes:
 
 ```
-gcloud compute ssh controller-0 \
-  --command "kubectl get nodes --kubeconfig admin.kubeconfig"
+EXTERNAL_IP=$(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=controller-0" \
+    --output text --query 'Reservations[].Instances[].PublicIpAddress')
+```
+```
+ssh -i "../ssh/kubernetes.id_rsa" ubuntu@$EXTERNAL_IP
+```
+```
+kubectl get nodes --kubeconfig admin.kubeconfig
 ```
 
 > output
 
 ```
-NAME       STATUS   ROLES    AGE   VERSION
-worker-0   Ready    <none>   35s   v1.12.0
-worker-1   Ready    <none>   36s   v1.12.0
-worker-2   Ready    <none>   36s   v1.12.0
+NAME             STATUS   ROLES    AGE     VERSION
+ip-10-240-0-20   Ready    <none>   3m21s   v1.12.0
+ip-10-240-0-21   Ready    <none>   3m14s   v1.12.0
+ip-10-240-0-22   Ready    <none>   3m12s   v1.12.0
 ```
 
 Next: [Configuring kubectl for Remote Access](10-configuring-kubectl.md)
