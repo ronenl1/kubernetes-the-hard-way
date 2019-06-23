@@ -4,10 +4,15 @@ In this lab you will bootstrap three Kubernetes worker nodes. The following comp
 
 ## Prerequisites
 
-The commands in this lab must be run on each worker instance: `worker-0`, `worker-1`, and `worker-2`. Login to each worker instance using the `gcloud` command. Example:
+The commands in this lab must be run on each worker instance: `worker-0`, `worker-1`, and `worker-2`. Login to each worker instance using the `gcloud` command. Example for worker-0:
 
 ```
-gcloud compute ssh worker-0
+EXTERNAL_IP=$(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=worker-0" \
+    --output text --query 'Reservations[].Instances[].PublicIpAddress')
+```
+```
+ssh -i "../ssh/kubernetes.id_rsa" ubuntu@$EXTERNAL_IP
 ```
 
 ### Running commands in parallel with tmux
