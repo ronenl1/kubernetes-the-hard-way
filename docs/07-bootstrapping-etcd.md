@@ -4,10 +4,14 @@ Kubernetes components are stateless and store cluster state in [etcd](https://gi
 
 ## Prerequisites
 
-The commands in this lab must be run on each controller instance: `controller-0`, `controller-1`, and `controller-2`. Login to each controller instance using the `gcloud` command. Example:
+The commands in this lab must be run on each controller instance: `controller-0`, `controller-1`, and `controller-2`. Login to each controller instance using ssh. Example for `controller-0`:
 
 ```
-gcloud compute ssh controller-0
+EXTERNAL_IP=$(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=controller-0" \
+    --output text --query 'Reservations[].Instances[].PublicIpAddress')
+
+ssh -i "../ssh/kubernetes.id_rsa" ubuntu@{EXTERNAL_IP}
 ```
 
 ### Running commands in parallel with tmux
