@@ -2,7 +2,7 @@
 
 ## Amazon Web Services Platform
 
-> The compute resources required for this tutorial exceed the Amazon Web Services free tier.
+> The compute resources required for this tutorial can be used by Amazon Web Services free tier account.
 
 ## Amazon Web Services CLI
 
