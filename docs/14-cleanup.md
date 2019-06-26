@@ -41,6 +41,7 @@ SECURITY_GROUP_ID=$(aws ec2 describe-security-groups \
   --filters "Name=tag:Name,Values=kubernetes" \
   --output text \
   --query 'SecurityGroups[].GroupId')
+
 aws ec2 delete-security-group \
   --group-id "${SECURITY_GROUP_ID}"
   
