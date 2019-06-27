@@ -87,4 +87,12 @@ aws ec2 delete-subnet \
 
 aws ec2 delete-vpc \
   --vpc-id "${VPC_ID}"
+  
+ELASTIC_IP_ALLOCATION_ID=$(aws ec2 describe-addresses \
+  --filters "Name=tag:Name,Values=kubernetes" \
+  --output text \
+  --query 'Addresses[].AllocationId')
+  
+aws ec2 release-address \
+  --allocation-id "${ELASTIC_IP_ALLOCATION_ID}"
 ```
