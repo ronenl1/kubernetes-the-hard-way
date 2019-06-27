@@ -18,7 +18,7 @@ aws ec2 delete-key-pair \
 
 ## Networking
 
-Delete the external load balancer network resources:
+Delete the network resources:
 
 ```
 LOAD_BALANCER_ARN=$(aws elbv2 describe-load-balancers \
@@ -45,29 +45,46 @@ SECURITY_GROUP_ID=$(aws ec2 describe-security-groups \
 aws ec2 delete-security-group \
   --group-id "${SECURITY_GROUP_ID}"
   
-```
+ROUTE_TABLE_ASSOCIATION_ID=$(aws ec2 describe-route-tables \
+  --filters "Name=tag:Name,Values=kubernetes" \
+  --output text \
+  --query 'RouteTables[].Associations[].RouteTableAssociationId')
 
-Delete the `kubernetes-the-hard-way` firewall rules:
+aws ec2 disassociate-route-table \
+  --association-id "${ROUTE_TABLE_ASSOCIATION_ID}"
 
-```
-gcloud -q compute firewall-rules delete \
-  kubernetes-the-hard-way-allow-nginx-service \
-  kubernetes-the-hard-way-allow-internal \
-  kubernetes-the-hard-way-allow-external \
-  kubernetes-the-hard-way-allow-health-check
-```
+ROUTE_TABLE_ID=$(aws ec2 describe-route-tables \
+  --filters "Name=tag:Name,Values=kubernetes" \
+  --output text \
+  --query 'RouteTables[].RouteTableId')
 
-Delete the `kubernetes-the-hard-way` network VPC:
+aws ec2 delete-route-table \
+  --route-table-id "${ROUTE_TABLE_ID}"
+  
+INTERNET_GATEWAY_ID=$(aws ec2 describe-internet-gateways \
+  --filters "Name=tag:Name,Values=kubernetes" \
+  --output text \
+  --query 'InternetGateways[].InternetGatewayId')
 
-```
-{
-  gcloud -q compute routes delete \
-    kubernetes-route-10-200-0-0-24 \
-    kubernetes-route-10-200-1-0-24 \
-    kubernetes-route-10-200-2-0-24
+VPC_ID=$(aws ec2 describe-internet-gateways \
+  --filters "Name=tag:Name,Values=kubernetes" \
+  --output text \
+  --query 'InternetGateways[].Attachments[].VpcId')
+aws ec2 detach-internet-gateway \
+  --internet-gateway-id "${INTERNET_GATEWAY_ID}" \
+  --vpc-id "${VPC_ID}"
+  
+aws ec2 delete-internet-gateway \
+  --internet-gateway-id "${INTERNET_GATEWAY_ID}"
 
-  gcloud -q compute networks subnets delete kubernetes
+SUBNET_ID=$(aws ec2 describe-subnets \
+  --filters "Name=tag:Name,Values=kubernetes" \
+  --output text \
+  --query 'Subnets[].SubnetId')
 
-  gcloud -q compute networks delete kubernetes-the-hard-way
-}
+aws ec2 delete-subnet \
+  --subnet-id "${SUBNET_ID}"
+
+aws ec2 delete-vpc \
+  --vpc-id "${VPC_ID}"
 ```
